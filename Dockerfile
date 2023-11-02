@@ -29,6 +29,10 @@ ENV ROC_ENABLE_PRE_VEGA=1 \
 
 WORKDIR /working/stable-diffusion-webui
 
+COPY scripts/configure.py .
+
+RUN ./venv/bin/python configure.py --skip-torch-cuda-test
+
 # Add Tini
 ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
