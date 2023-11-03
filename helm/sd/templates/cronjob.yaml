@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sd-restart
+spec:
+  concurrencyPolicy: Forbid
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: {{ include "sd.serviceAccountName" . }}
+          containers:
+          - name: sd-restart
+            image: bitnami/kubectl
+            command: ["/bin/bash"]
+            args:
+            - -c
+            - |
+              kubectl -n sd delete pod -l app.kubernetes.io/name=sd
+          restartPolicy: OnFailure
