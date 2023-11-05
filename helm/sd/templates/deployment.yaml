@@ -11,6 +11,8 @@ spec:
   selector:
     matchLabels:
       {{- include "sd.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -51,8 +53,9 @@ spec:
             {{- range .Values.persistence.hostPaths }}
             - mountPath: {{ .mountPath }}
               name: {{ .name | camelcase | lower }}
-              readOnly: true
             {{- end }}
+            - mountPath: /working/stable-diffusion-webui/output
+              name: output
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -72,3 +75,6 @@ spec:
             path: {{ .hostPath }}
             type: Directory
       {{- end }}
+        - name: output
+          emptyDir:
+            medium: Memory
