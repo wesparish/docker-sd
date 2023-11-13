@@ -39,9 +39,11 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod +x /tini
 
 ENTRYPOINT ["/tini", "--"]
-CMD ["./venv/bin/python", "launch.py", "--no-download-sd-model", "--listen"]
-
-#ENTRYPOINT ["./venv/bin/python"]
-#CMD ["launch.py", "--no-download-sd-model", "--listen"]
+CMD [ \
+  "./venv/bin/python", \
+  "launch.py", \
+  "--no-download-sd-model", \
+  "--listen", \
+  "--enable-insecure-extension-access"]
 
 # docker run --rm -ti  --network=host --device=/dev/kfd --device=/dev/dri --group-add=video --ipc=host --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $PWD/models:/working/stable-diffusion-webui/models:ro -P --entrypoint /bin/bash sd:latest
