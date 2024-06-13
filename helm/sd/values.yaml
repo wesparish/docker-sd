@@ -73,7 +73,7 @@ persistence:
 
 resources:
   limits:
-    "amd.com/gpu": 1
+    "nvidia.com/gpu": 1
 
 autoscaling:
   enabled: false
