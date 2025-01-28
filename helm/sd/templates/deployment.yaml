@@ -35,26 +35,46 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # command: ["tail", "-f", "/etc/hosts"]
           ports:
             - name: http
               containerPort: 7860
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{- range .Values.persistence.hostPaths }}
             - mountPath: {{ .mountPath }}
               name: {{ .name | camelcase | lower }}
+              {{- if .subPath }}
+              subPath: {{ .subPath }}
+              {{- end }}
             {{- end }}
-            - mountPath: /working/stable-diffusion-webui/output
+            {{- range .Values.persistence.pvcs }}
+            - mountPath: {{ .mountPath }}
+              name: {{ .name | camelcase | lower }}-{{ .subPath | replace "/" "-" }}
+              {{- if .subPath }}
+              subPath: {{ .subPath }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.persistence.sharedPvc.sharedExistingClaim }}
+            {{- range .Values.persistence.sharedPvc.subPaths }}
+            - mountPath: "{{ $.Values.persistence.sharedPvc.mountPathBase }}/{{ . }}"
+              name: shared-data
+              {{- if . }}
+              subPath: {{ . }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+            - mountPath: {{ .Values.persistence.sharedPvc.mountPathBase }}/output
               name: output
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -74,6 +94,16 @@ spec:
           hostPath:
             path: {{ .hostPath }}
             type: Directory
+      {{- end }}
+      {{- range .Values.persistence.pvcs }}
+        - name: {{ .name | camelcase | lower }}
+          persistentVolumeClaim:
+            claimName: {{ .existingClaim }}
+      {{- end }}
+      {{- if .Values.persistence.sharedPvc.sharedExistingClaim }}
+        - name: shared-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.sharedPvc.sharedExistingClaim }}
       {{- end }}
         - name: output
           emptyDir:

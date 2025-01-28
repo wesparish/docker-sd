@@ -5,10 +5,12 @@
 replicaCount: 1
 
 image:
-  repository: wesparish/docker-sd
+  # repository: wesparish/docker-sd
+  repository: "wesparish/sd-auto"
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "master"
+  # tag: "master"
+  tag: "78"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -57,19 +59,46 @@ ingress:
   #      - chart-example.local
 
 persistence:
-  hostPaths:
-    - name: embeddings
-      hostPath: /var/data/sd/embeddings
-      mountPath: /working/stable-diffusion-webui/embeddings
-    - name: extensions
-      hostPath: /var/data/sd/extensions
-      mountPath: /working/stable-diffusion-webui/extensions
-    - name: models
-      hostPath: /var/data/sd/models
-      mountPath: /working/stable-diffusion-webui/models
-    - name: textual_inversion_templates
-      hostPath: /var/data/sd/textual_inversion_templates
-      mountPath: /working/stable-diffusion-webui/textual_inversion_templates
+  # hostPaths:
+  #   - name: embeddings
+  #     hostPath: /var/data/sd/embeddings
+  #     mountPath: /working/stable-diffusion-webui/embeddings
+  #   - name: extensions
+  #     hostPath: /var/data/sd/extensions
+  #     mountPath: /working/stable-diffusion-webui/extensions
+  #   - name: models
+  #     hostPath: /var/data/sd/models
+  #     mountPath: /working/stable-diffusion-webui/models
+  #   - name: textual_inversion_templates
+  #     hostPath: /var/data/sd/textual_inversion_templates
+  #     mountPath: /working/stable-diffusion-webui/textual_inversion_templates
+  sharedPvc:
+    sharedExistingClaim: sd-data
+    mountPathBase:
+    subPaths:
+      - data
+      # - embeddings
+      # - extensions
+      # - models
+      # - textual_inversion_templates
+      ## - data
+      ## - config
+  # pvcs:
+    # - name: embeddings
+    #   existingClaim: sd-data
+    #   mountPath: /working/stable-diffusion-webui/embeddings
+    # - name: extensions
+    #   existingClaim: sd-data
+    #   mountPath: /working/stable-diffusion-webui/extensions
+    #   subPath: extensions
+    # - name: models
+    #   existingClaim: sd-data
+    #   mountPath: /working/stable-diffusion-webui/models
+    #   subPath: models
+    # - name: textual_inversion_templates
+    #   existingClaim: sd-data
+    #   mountPath: /working/stable-diffusion-webui/textual_inversion_templates
+    #   subPath: textual_inversion_templates
 
 resources:
   limits:
